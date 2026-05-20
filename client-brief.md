@@ -1,6 +1,4 @@
-Perfecto! Ahora el client-brief.md. Copia este contenido:
-
-markdown# Client Brief — Asistente Académico Inteligente
+# Client Brief — Asistente Académico Inteligente
 
 ## Contexto del cliente
 
