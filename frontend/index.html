@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Asistente Académico</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0f0f13;
+      --surface: #18181f;
+      --surface2: #1f1f2b;
+      --border: #2a2a38;
+      --accent: #7c6af7;
+      --accent2: #a78bfa;
+      --text: #e8e8f0;
+      --muted: #7a7a9a;
+      --alta: #f87171;
+      --media: #fbbf24;
+      --baja: #34d399;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      max-width: 860px;
+      margin: 0 auto 2.5rem;
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.2rem;
+    }
+
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.9rem;
+      color: var(--text);
+    }
+
+    header span {
+      font-size: 0.8rem;
+      color: var(--accent2);
+      background: #7c6af718;
+      border: 1px solid #7c6af740;
+      padding: 2px 10px;
+      border-radius: 20px;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 700px) {
+      .container { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.4rem;
+    }
+
+    .card h2 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 1.2rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+      margin-top: 12px;
+    }
+
+    label:first-of-type { margin-top: 0; }
+
+    input, select, textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+
+    textarea { resize: vertical; min-height: 70px; }
+    select option { background: var(--surface2); }
+
+    button.primary {
+      margin-top: 1.2rem;
+      width: 100%;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    button.primary:hover { background: var(--accent2); }
+    button.primary:active { transform: scale(0.98); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .stat {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.8rem;
+      text-align: center;
+    }
+
+    .stat .num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      color: var(--accent2);
+    }
+
+    .stat .lbl {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .filters {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent2);
+    }
+
+    #task-list { display: flex; flex-direction: column; gap: 0.7rem; }
+
+    .task-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.9rem;
+      transition: border-color 0.2s;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .task-item:hover { border-color: #3a3a50; }
+    .task-item.done { opacity: 0.45; }
+
+    .task-item input[type=checkbox] {
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      margin-top: 2px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .task-body { flex: 1; min-width: 0; }
+
+    .task-title {
+      font-weight: 500;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task-done .task-title { text-decoration: line-through; }
+
+    .task-meta {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .chip {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .chip-materia { background: #7c6af720; color: var(--accent2); border: 1px solid #7c6af740; }
+    .chip-alta { background: #f8717118; color: var(--alta); border: 1px solid #f8717140; }
+    .chip-media { background: #fbbf2418; color: var(--media); border: 1px solid #fbbf2440; }
+    .chip-baja { background: #34d39918; color: var(--baja); border: 1px solid #34d39940; }
+    .chip-fecha { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color 0.15s;
+      line-height: 1;
+    }
+    .btn-delete:hover { color: var(--alta); }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      padding: 2rem 1rem;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--accent);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Asistente Académico</h1>
+  <span>v0.1 · MVP</span>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Nueva tarea</h2>
+    <label>Título *</label>
+    <input type="text" id="titulo" placeholder="Ej: Parcial de Cálculo"/>
+
+    <label>Materia *</label>
+    <input type="text" id="materia" placeholder="Ej: Cálculo II"/>
+
+    <label>Fecha de entrega *</label>
+    <input type="date" id="fecha_entrega"/>
+
+    <label>Prioridad</label>
+    <select id="prioridad">
+      <option value="alta">🔴 Alta</option>
+      <option value="media" selected>🟡 Media</option>
+      <option value="baja">🟢 Baja</option>
+    </select>
+
+    <label>Descripción (opcional)</label>
+    <textarea id="descripcion" placeholder="Notas adicionales..."></textarea>
+
+    <button class="primary" onclick="crearTarea()">+ Agregar tarea</button>
+  </div>
+
+  <div>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="stats">
+        <div class="stat">
+          <div class="num" id="stat-total">0</div>
+          <div class="lbl">Total</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="stat-pendientes">0</div>
+          <div class="lbl">Pendientes</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="stat-completadas">0</div>
+          <div class="lbl">Listas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Tareas</h2>
+      <div class="filters">
+        <button class="filter-btn active" onclick="filtrar('todas', this)">Todas</button>
+        <button class="filter-btn" onclick="filtrar('pendientes', this)">Pendientes</button>
+        <button class="filter-btn" onclick="filtrar('completadas', this)">Completadas</button>
+      </div>
+      <div id="task-list"><div class="empty">Aún no hay tareas 📚</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const API = 'http://localhost:8000';
+  let tasks = [];
+  let filtroActivo = 'todas';
+
+  async function cargarTareas() {
+    try {
+      const res = await fetch(`${API}/tasks`);
+      tasks = await res.json();
+    } catch {
+      tasks = [];
+    }
+    renderTareas();
+    actualizarStats();
+  }
+
+  async function crearTarea() {
+    const titulo = document.getElementById('titulo').value.trim();
+    const materia = document.getElementById('materia').value.trim();
+    const fecha_entrega = document.getElementById('fecha_entrega').value;
+    const prioridad = document.getElementById('prioridad').value;
+    const descripcion = document.getElementById('descripcion').value.trim();
+
+    if (!titulo || !materia || !fecha_entrega) {
+      toast('⚠️ Completa los campos obligatorios');
+      return;
+    }
+
+    const tarea = { titulo, materia, fecha_entrega, prioridad, descripcion };
+
+    try {
+      const res = await fetch(`${API}/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tarea)
+      });
+      const nueva = await res.json();
+      tasks.unshift(nueva);
+    } catch {
+      tasks.unshift({ ...tarea, id: crypto.randomUUID(), completada: false });
+    }
+
+    limpiarFormulario();
+    renderTareas();
+    actualizarStats();
+    toast('✓ Tarea agregada');
+  }
+
+  async function completarTarea(id) {
+    try {
+      await fetch(`${API}/tasks/${id}/completar`, { method: 'PATCH' });
+    } catch {}
+    const t = tasks.find(t => t.id === id);
+    if (t) t.completada = true;
+    renderTareas();
+    actualizarStats();
+  }
+
+  async function eliminarTarea(id) {
+    try {
+      await fetch(`${API}/tasks/${id}`, { method: 'DELETE' });
+    } catch {}
+    tasks = tasks.filter(t => t.id !== id);
+    renderTareas();
+    actualizarStats();
+    toast('🗑 Tarea eliminada');
+  }
+
+  function filtrar(tipo, btn) {
+    filtroActivo = tipo;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTareas();
+  }
+
+  function renderTareas() {
+    const lista = document.getElementById('task-list');
+    let filtradas = tasks;
+    if (filtroActivo === 'pendientes') filtradas = tasks.filter(t => !t.completada);
+    if (filtroActivo === 'completadas') filtradas = tasks.filter(t => t.completada);
+
+    if (!filtradas.length) {
+      lista.innerHTML = '<div class="empty">Sin tareas en esta vista 📚</div>';
+      return;
+    }
+
+    lista.innerHTML = filtradas.map(t => `
+      <div class="task-item ${t.completada ? 'done task-done' : ''}">
+        <input type="checkbox" ${t.completada ? 'checked' : ''}
+          onchange="completarTarea('${t.id}')" ${t.completada ? 'disabled' : ''}/>
+        <div class="task-body">
+          <div class="task-title">${t.titulo}</div>
+          <div class="task-meta">
+            <span class="chip chip-materia">${t.materia}</span>
+            <span class="chip chip-${t.prioridad}">${t.prioridad}</span>
+            <span class="chip chip-fecha">📅 ${t.fecha_entrega}</span>
+          </div>
+        </div>
+        <button class="btn-delete" onclick="eliminarTarea('${t.id}')" title="Eliminar">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function actualizarStats() {
+    document.getElementById('stat-total').textContent = tasks.length;
+    document.getElementById('stat-pendientes').textContent = tasks.filter(t => !t.completada).length;
+    document.getElementById('stat-completadas').textContent = tasks.filter(t => t.completada).length;
+  }
+
+  function limpiarFormulario() {
+    ['titulo','materia','fecha_entrega','descripcion'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('prioridad').value = 'media';
+  }
+
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  document.getElementById('fecha_entrega').min = new Date().toISOString().split('T')[0];
+
+  cargarTareas();
+</script>
+</body>
+</html>
