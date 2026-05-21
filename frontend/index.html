@@ -1,480 +1,525 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Asistente Académico</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <title>Academic Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
-    :root {
-      --bg: #0f0f13;
-      --surface: #18181f;
-      --surface2: #1f1f2b;
-      --border: #2a2a38;
-      --accent: #7c6af7;
-      --accent2: #a78bfa;
-      --text: #e8e8f0;
-      --muted: #7a7a9a;
-      --alta: #f87171;
-      --media: #fbbf24;
-      --baja: #34d399;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #0e0f13;
+      --surface:  #16181f;
+      --border:   #2a2d38;
+      --accent:   #c8f135;
+      --accent2:  #5b8cff;
+      --danger:   #ff5c5c;
+      --text:     #e8eaf0;
+      --muted:    #6b7080;
+      --radius:   10px;
+      --font:     'Syne', sans-serif;
+      --mono:     'DM Mono', monospace;
+    }
 
     body {
-      font-family: 'DM Sans', sans-serif;
       background: var(--bg);
       color: var(--text);
+      font-family: var(--font);
       min-height: 100vh;
-      padding: 2rem 1rem;
+      padding: 0 0 60px;
     }
 
+    /* ── Header ── */
     header {
-      max-width: 860px;
-      margin: 0 auto 2.5rem;
       display: flex;
-      align-items: baseline;
-      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 40px 24px;
       border-bottom: 1px solid var(--border);
-      padding-bottom: 1.2rem;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 10;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+    .status-pill {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      padding: 4px 12px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-pill.connected { border-color: var(--accent); color: var(--accent); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: flex;
+      gap: 1px;
+      padding: 0 40px;
+      margin: 32px 0 0;
+    }
+    .stat {
+      flex: 1;
+      background: var(--surface);
+      padding: 20px 24px;
+      border: 1px solid var(--border);
+    }
+    .stat:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+    .stat:last-child  { border-radius: 0 var(--radius) var(--radius) 0; }
+    .stat-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--accent);
+    }
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 6px;
     }
 
-    header h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.9rem;
-      color: var(--text);
-    }
-
-    header span {
-      font-size: 0.8rem;
-      color: var(--accent2);
-      background: #7c6af718;
-      border: 1px solid #7c6af740;
-      padding: 2px 10px;
-      border-radius: 20px;
-    }
-
-    .container {
-      max-width: 860px;
-      margin: 0 auto;
+    /* ── Main grid ── */
+    .main {
       display: grid;
-      grid-template-columns: 340px 1fr;
-      gap: 1.5rem;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+      padding: 32px 40px 0;
     }
 
-    @media (max-width: 700px) {
-      .container { grid-template-columns: 1fr; }
-    }
-
+    /* ── Card ── */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.4rem;
+      border-radius: var(--radius);
+      padding: 28px;
     }
-
-    .card h2 {
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+    .card-title {
+      font-size: 0.75rem;
+      font-family: var(--mono);
       color: var(--muted);
-      margin-bottom: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 22px;
     }
 
+    /* ── Form ── */
+    .field { margin-bottom: 16px; }
     label {
       display: block;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
+      font-family: var(--mono);
       color: var(--muted);
-      margin-bottom: 4px;
-      margin-top: 12px;
+      margin-bottom: 6px;
     }
-
-    label:first-of-type { margin-top: 0; }
-
     input, select, textarea {
       width: 100%;
-      background: var(--surface2);
+      background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 12px;
+      border-radius: var(--radius);
       color: var(--text);
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font);
       font-size: 0.9rem;
+      padding: 10px 14px;
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color .2s;
     }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent2); }
+    textarea { resize: vertical; min-height: 72px; }
+    select option { background: var(--surface); }
 
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-    }
-
-    textarea { resize: vertical; min-height: 70px; }
-    select option { background: var(--surface2); }
-
-    button.primary {
-      margin-top: 1.2rem;
+    .btn {
       width: 100%;
-      background: var(--accent);
-      color: white;
+      padding: 12px;
       border: none;
-      border-radius: 8px;
-      padding: 10px;
-      font-family: 'DM Sans', sans-serif;
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-weight: 700;
       font-size: 0.9rem;
-      font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
+      transition: opacity .15s, transform .1s;
     }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: var(--accent); color: #0e0f13; }
+    .btn-primary:hover { opacity: .88; }
 
-    button.primary:hover { background: var(--accent2); }
-    button.primary:active { transform: scale(0.98); }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.8rem;
-      margin-bottom: 1.2rem;
-    }
-
-    .stat {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 0.8rem;
-      text-align: center;
-    }
-
-    .stat .num {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.6rem;
-      color: var(--accent2);
-    }
-
-    .stat .lbl {
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
+    /* ── Filters ── */
     .filters {
       display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
+      gap: 10px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
     }
-
     .filter-btn {
-      background: var(--surface2);
+      padding: 6px 16px;
+      border-radius: 99px;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 4px 12px;
-      font-size: 0.78rem;
+      background: transparent;
       color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.75rem;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all .15s;
     }
-
-    .filter-btn.active, .filter-btn:hover {
+    .filter-btn.active {
       border-color: var(--accent);
-      color: var(--accent2);
+      color: var(--accent);
+      background: rgba(200,241,53,.06);
     }
 
-    #task-list { display: flex; flex-direction: column; gap: 0.7rem; }
+    /* ── Task list ── */
+    #task-list { display: flex; flex-direction: column; gap: 12px; }
 
-    .task-item {
-      background: var(--surface2);
+    .task-card {
+      background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem 1.1rem;
-      display: flex;
-      align-items: flex-start;
-      gap: 0.9rem;
-      transition: border-color 0.2s;
-      animation: fadeIn 0.25s ease;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      transition: border-color .2s;
+      animation: slideIn .25s ease;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
+    .task-card:hover { border-color: var(--border); }
+    .task-card.completed { opacity: .5; }
+    .task-card.completed .task-title { text-decoration: line-through; }
 
-    .task-item:hover { border-color: #3a3a50; }
-    .task-item.done { opacity: 0.45; }
-
-    .task-item input[type=checkbox] {
-      width: 18px;
-      height: 18px;
-      min-width: 18px;
-      margin-top: 2px;
-      accent-color: var(--accent);
-      cursor: pointer;
-    }
-
-    .task-body { flex: 1; min-width: 0; }
-
-    .task-title {
-      font-weight: 500;
-      font-size: 0.95rem;
-      margin-bottom: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .task-done .task-title { text-decoration: line-through; }
-
+    .task-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
     .task-meta {
       display: flex;
-      gap: 0.5rem;
+      gap: 10px;
       flex-wrap: wrap;
       align-items: center;
     }
-
-    .chip {
-      font-size: 0.7rem;
+    .tag {
+      font-family: var(--mono);
+      font-size: 0.68rem;
       padding: 2px 8px;
-      border-radius: 20px;
-      font-weight: 500;
-    }
-
-    .chip-materia { background: #7c6af720; color: var(--accent2); border: 1px solid #7c6af740; }
-    .chip-alta { background: #f8717118; color: var(--alta); border: 1px solid #f8717140; }
-    .chip-media { background: #fbbf2418; color: var(--media); border: 1px solid #fbbf2440; }
-    .chip-baja { background: #34d39918; color: var(--baja); border: 1px solid #34d39940; }
-    .chip-fecha { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
-
-    .btn-delete {
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 1rem;
-      padding: 2px 4px;
       border-radius: 4px;
-      transition: color 0.15s;
-      line-height: 1;
-    }
-    .btn-delete:hover { color: var(--alta); }
-
-    .empty {
-      text-align: center;
+      border: 1px solid var(--border);
       color: var(--muted);
-      font-size: 0.85rem;
-      padding: 2rem 1rem;
     }
+    .tag.high   { border-color: var(--danger);  color: var(--danger); }
+    .tag.medium { border-color: var(--accent2); color: var(--accent2); }
+    .tag.low    { border-color: var(--muted);   color: var(--muted); }
 
-    #toast {
+    .task-actions { display: flex; gap: 8px; align-self: start; }
+    .icon-btn {
+      width: 32px; height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .icon-btn:hover { background: var(--surface); color: var(--text); }
+    .icon-btn.complete:hover { border-color: var(--accent); color: var(--accent); }
+    .icon-btn.delete:hover  { border-color: var(--danger);  color: var(--danger); }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+    }
+    .empty-icon { font-size: 2rem; margin-bottom: 12px; }
+
+    /* ── Toast ── */
+    .toast {
       position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      background: var(--accent);
-      color: white;
-      padding: 10px 18px;
-      border-radius: 8px;
+      bottom: 28px;
+      right: 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 20px;
       font-size: 0.85rem;
-      font-weight: 500;
-      opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
+      font-family: var(--mono);
+      z-index: 999;
+      animation: toastIn .2s ease;
+      transition: opacity .3s;
+    }
+    .toast.success { border-color: var(--accent); color: var(--accent); }
+    .toast.error   { border-color: var(--danger); color: var(--danger); }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    #toast.show { opacity: 1; }
+    @media (max-width: 800px) {
+      .main { grid-template-columns: 1fr; }
+      header, .stats-bar, .main { padding-left: 20px; padding-right: 20px; }
+    }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>Asistente Académico</h1>
-  <span>v0.1 · MVP</span>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Academic Assistant
+  </div>
+  <div class="status-pill" id="status-pill">
+    <span class="status-dot"></span>
+    <span id="status-text">connecting...</span>
+  </div>
 </header>
 
-<div class="container">
-
-  <div class="card">
-    <h2>Nueva tarea</h2>
-    <label>Título *</label>
-    <input type="text" id="titulo" placeholder="Ej: Parcial de Cálculo"/>
-
-    <label>Materia *</label>
-    <input type="text" id="materia" placeholder="Ej: Cálculo II"/>
-
-    <label>Fecha de entrega *</label>
-    <input type="date" id="fecha_entrega"/>
-
-    <label>Prioridad</label>
-    <select id="prioridad">
-      <option value="alta">🔴 Alta</option>
-      <option value="media" selected>🟡 Media</option>
-      <option value="baja">🟢 Baja</option>
-    </select>
-
-    <label>Descripción (opcional)</label>
-    <textarea id="descripcion" placeholder="Notas adicionales..."></textarea>
-
-    <button class="primary" onclick="crearTarea()">+ Agregar tarea</button>
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-value" id="stat-total">—</div>
+    <div class="stat-label">Total Tasks</div>
   </div>
-
-  <div>
-    <div class="card" style="margin-bottom:1rem">
-      <div class="stats">
-        <div class="stat">
-          <div class="num" id="stat-total">0</div>
-          <div class="lbl">Total</div>
-        </div>
-        <div class="stat">
-          <div class="num" id="stat-pendientes">0</div>
-          <div class="lbl">Pendientes</div>
-        </div>
-        <div class="stat">
-          <div class="num" id="stat-completadas">0</div>
-          <div class="lbl">Listas</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Tareas</h2>
-      <div class="filters">
-        <button class="filter-btn active" onclick="filtrar('todas', this)">Todas</button>
-        <button class="filter-btn" onclick="filtrar('pendientes', this)">Pendientes</button>
-        <button class="filter-btn" onclick="filtrar('completadas', this)">Completadas</button>
-      </div>
-      <div id="task-list"><div class="empty">Aún no hay tareas 📚</div></div>
-    </div>
+  <div class="stat">
+    <div class="stat-value" id="stat-pending">—</div>
+    <div class="stat-label">Pending</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value" id="stat-completed">—</div>
+    <div class="stat-label">Completed</div>
   </div>
 </div>
 
-<div id="toast"></div>
+<div class="main">
+
+  <!-- ── Form panel ── -->
+  <div class="card">
+    <div class="card-title">New Task</div>
+
+    <div class="field">
+      <label>Title</label>
+      <input id="f-title" type="text" placeholder="e.g. Calculus homework"/>
+    </div>
+    <div class="field">
+      <label>Subject</label>
+      <input id="f-subject" type="text" placeholder="e.g. Mathematics"/>
+    </div>
+    <div class="field">
+      <label>Due Date</label>
+      <input id="f-due" type="date"/>
+    </div>
+    <div class="field">
+      <label>Priority</label>
+      <select id="f-priority">
+        <option value="high">High</option>
+        <option value="medium" selected>Medium</option>
+        <option value="low">Low</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Description (optional)</label>
+      <textarea id="f-desc" placeholder="Additional notes..."></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="createTask()">Add Task</button>
+  </div>
+
+  <!-- ── Task list panel ── -->
+  <div class="card">
+    <div class="card-title">Task Board</div>
+
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('pending', this)">Pending</button>
+      <button class="filter-btn" onclick="setFilter('completed', this)">Completed</button>
+    </div>
+
+    <div id="task-list">
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        Loading tasks...
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <script>
-  const API = 'http://localhost:8000';
-  let tasks = [];
-  let filtroActivo = 'todas';
+  // ── CONFIG ──────────────────────────────────────────────
+  const API = "http://localhost:8000";
+  let currentFilter = "all";
 
-  async function cargarTareas() {
-    try {
-      const res = await fetch(`${API}/tasks`);
-      tasks = await res.json();
-    } catch {
-      tasks = [];
+  // ── API CALLS ───────────────────────────────────────────
+  async function apiFetch(path, options = {}) {
+    const res = await fetch(API + path, {
+      headers: { "Content-Type": "application/json" },
+      ...options,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `HTTP ${res.status}`);
     }
-    renderTareas();
-    actualizarStats();
+    return res.json();
   }
 
-  async function crearTarea() {
-    const titulo = document.getElementById('titulo').value.trim();
-    const materia = document.getElementById('materia').value.trim();
-    const fecha_entrega = document.getElementById('fecha_entrega').value;
-    const prioridad = document.getElementById('prioridad').value;
-    const descripcion = document.getElementById('descripcion').value.trim();
+  async function fetchTasks() {
+    const params = currentFilter === "pending"   ? "?completed=false"
+                 : currentFilter === "completed" ? "?completed=true"
+                 : "";
+    return apiFetch("/tasks" + params);
+  }
 
-    if (!titulo || !materia || !fecha_entrega) {
-      toast('⚠️ Completa los campos obligatorios');
+  async function createTask() {
+    const title       = document.getElementById("f-title").value.trim();
+    const subject     = document.getElementById("f-subject").value.trim();
+    const due_date    = document.getElementById("f-due").value;
+    const priority    = document.getElementById("f-priority").value;
+    const description = document.getElementById("f-desc").value.trim();
+
+    if (!title || !subject || !due_date) {
+      showToast("Please fill in title, subject and due date.", "error");
       return;
     }
 
-    const tarea = { titulo, materia, fecha_entrega, prioridad, descripcion };
-
     try {
-      const res = await fetch(`${API}/tasks`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tarea)
+      await apiFetch("/tasks", {
+        method: "POST",
+        body: JSON.stringify({ title, subject, due_date, priority, description }),
       });
-      const nueva = await res.json();
-      tasks.unshift(nueva);
-    } catch {
-      tasks.unshift({ ...tarea, id: crypto.randomUUID(), completada: false });
+      showToast("Task created ✓", "success");
+      clearForm();
+      await refresh();
+    } catch (e) {
+      showToast(e.message, "error");
     }
-
-    limpiarFormulario();
-    renderTareas();
-    actualizarStats();
-    toast('✓ Tarea agregada');
   }
 
-  async function completarTarea(id) {
+  async function completeTask(id) {
     try {
-      await fetch(`${API}/tasks/${id}/completar`, { method: 'PATCH' });
-    } catch {}
-    const t = tasks.find(t => t.id === id);
-    if (t) t.completada = true;
-    renderTareas();
-    actualizarStats();
+      await apiFetch(`/tasks/${id}/complete`, { method: "PATCH" });
+      showToast("Marked as complete ✓", "success");
+      await refresh();
+    } catch (e) {
+      showToast(e.message, "error");
+    }
   }
 
-  async function eliminarTarea(id) {
+  async function deleteTask(id) {
     try {
-      await fetch(`${API}/tasks/${id}`, { method: 'DELETE' });
-    } catch {}
-    tasks = tasks.filter(t => t.id !== id);
-    renderTareas();
-    actualizarStats();
-    toast('🗑 Tarea eliminada');
+      await apiFetch(`/tasks/${id}`, { method: "DELETE" });
+      showToast("Task deleted", "success");
+      await refresh();
+    } catch (e) {
+      showToast(e.message, "error");
+    }
   }
 
-  function filtrar(tipo, btn) {
-    filtroActivo = tipo;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderTareas();
+  async function fetchStats() {
+    const data = await apiFetch("/tasks/stats/summary");
+    document.getElementById("stat-total").textContent     = data.total;
+    document.getElementById("stat-pending").textContent   = data.pending;
+    document.getElementById("stat-completed").textContent = data.completed;
   }
 
-  function renderTareas() {
-    const lista = document.getElementById('task-list');
-    let filtradas = tasks;
-    if (filtroActivo === 'pendientes') filtradas = tasks.filter(t => !t.completada);
-    if (filtroActivo === 'completadas') filtradas = tasks.filter(t => t.completada);
-
-    if (!filtradas.length) {
-      lista.innerHTML = '<div class="empty">Sin tareas en esta vista 📚</div>';
+  // ── RENDER ──────────────────────────────────────────────
+  function renderTasks(tasks) {
+    const list = document.getElementById("task-list");
+    if (!tasks.length) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">✅</div>No tasks here.</div>`;
       return;
     }
 
-    lista.innerHTML = filtradas.map(t => `
-      <div class="task-item ${t.completada ? 'done task-done' : ''}">
-        <input type="checkbox" ${t.completada ? 'checked' : ''}
-          onchange="completarTarea('${t.id}')" ${t.completada ? 'disabled' : ''}/>
-        <div class="task-body">
-          <div class="task-title">${t.titulo}</div>
+    list.innerHTML = tasks.map(t => `
+      <div class="task-card ${t.completed ? "completed" : ""}">
+        <div>
+          <div class="task-title">${escHtml(t.title)}</div>
           <div class="task-meta">
-            <span class="chip chip-materia">${t.materia}</span>
-            <span class="chip chip-${t.prioridad}">${t.prioridad}</span>
-            <span class="chip chip-fecha">📅 ${t.fecha_entrega}</span>
+            <span class="tag">${escHtml(t.subject)}</span>
+            <span class="tag ${t.priority}">${t.priority}</span>
+            <span class="tag">📅 ${t.due_date}</span>
+            ${t.description ? `<span class="tag" title="${escHtml(t.description)}">📝</span>` : ""}
           </div>
         </div>
-        <button class="btn-delete" onclick="eliminarTarea('${t.id}')" title="Eliminar">✕</button>
+        <div class="task-actions">
+          ${!t.completed
+            ? `<button class="icon-btn complete" title="Mark complete" onclick="completeTask('${t.id}')">✓</button>`
+            : ""}
+          <button class="icon-btn delete" title="Delete" onclick="deleteTask('${t.id}')">✕</button>
+        </div>
       </div>
-    `).join('');
+    `).join("");
   }
 
-  function actualizarStats() {
-    document.getElementById('stat-total').textContent = tasks.length;
-    document.getElementById('stat-pendientes').textContent = tasks.filter(t => !t.completada).length;
-    document.getElementById('stat-completadas').textContent = tasks.filter(t => t.completada).length;
+  // ── HELPERS ─────────────────────────────────────────────
+  async function refresh() {
+    try {
+      const [tasks] = await Promise.all([fetchTasks(), fetchStats()]);
+      renderTasks(tasks);
+    } catch (e) {
+      renderTasks([]);
+    }
   }
 
-  function limpiarFormulario() {
-    ['titulo','materia','fecha_entrega','descripcion'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
-    document.getElementById('prioridad').value = 'media';
+  function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    refresh();
   }
 
-  function toast(msg) {
-    const el = document.getElementById('toast');
+  function clearForm() {
+    ["f-title","f-subject","f-due","f-desc"].forEach(id => document.getElementById(id).value = "");
+    document.getElementById("f-priority").value = "medium";
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/[&<>"']/g, c =>
+      ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+  }
+
+  let toastTimer;
+  function showToast(msg, type = "success") {
+    const existing = document.querySelector(".toast");
+    if (existing) existing.remove();
+    clearTimeout(toastTimer);
+    const el = document.createElement("div");
+    el.className = `toast ${type}`;
     el.textContent = msg;
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 2500);
+    document.body.appendChild(el);
+    toastTimer = setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 300); }, 3000);
   }
 
-  document.getElementById('fecha_entrega').min = new Date().toISOString().split('T')[0];
+  // ── INIT ────────────────────────────────────────────────
+  async function init() {
+    const pill = document.getElementById("status-pill");
+    const txt  = document.getElementById("status-text");
+    try {
+      const data = await apiFetch("/");
+      txt.textContent = `API v${data.version}`;
+      pill.classList.add("connected");
+      await refresh();
+    } catch {
+      txt.textContent = "backend offline";
+      document.getElementById("task-list").innerHTML =
+        `<div class="empty-state"><div class="empty-icon">⚠️</div>Cannot reach the API.<br/>Make sure the backend is running on <code>localhost:8000</code></div>`;
+    }
+  }
 
-  cargarTareas();
+  init();
 </script>
 </body>
 </html>
