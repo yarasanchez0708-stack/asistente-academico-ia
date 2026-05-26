@@ -87,3 +87,65 @@ Se sigue el flujo descrito en [Running Your AFK Agent](https://www.aihero.dev/ru
 - Sin base de datos en fase inicial (datos en memoria)
 - Sin deployment en esta entrega (local únicamente)
 - Tiempo de desarrollo: sesiones de 1–2 horas con Claude Code
+
+- ---
+
+## Alcance del Proyecto
+
+El proyecto contempla el desarrollo de una aplicación web académica enfocada en la gestión inteligente de tareas y apoyo estudiantil mediante inteligencia artificial.
+
+### Incluye
+- Backend REST API desarrollado con FastAPI
+- Frontend web responsive en HTML, CSS y JavaScript vanilla
+- CRUD completo de tareas académicas
+- Integración con Anthropic API (Claude) para asistencia inteligente
+- Gestión básica de estados y almacenamiento temporal de datos
+- Arquitectura modular y escalable
+
+### No Incluye (Fase Inicial)
+- Aplicación móvil nativa
+- Sistema de pagos
+- Autenticación avanzada con múltiples roles
+- Integraciones con LMS externos (Moodle, Canvas, Blackboard)
+
+---
+
+## Requisitos No Funcionales
+
+### Rendimiento
+- Las respuestas del backend deben mantenerse por debajo de 2 segundos en operaciones CRUD estándar
+- Las respuestas generadas por IA deben optimizarse para minimizar tiempos de espera
+
+### Seguridad
+- Las claves API deben manejarse mediante variables de entorno
+- Validación de entradas tanto en frontend como backend
+
+### Escalabilidad
+- El proyecto debe mantener una estructura modular que facilite futuras integraciones
+- El backend debe permitir la incorporación futura de autenticación y bases de datos persistentes
+
+### Usabilidad
+- Interfaz limpia e intuitiva para estudiantes y docentes
+- Diseño responsive compatible con dispositivos móviles y escritorio
+
+---
+
+## Roadmap Técnico
+
+### Fase 1 — MVP
+- CRUD de tareas académicas
+- Interfaz web básica
+- Integración inicial con Claude API
+- Organización base del proyecto frontend/backend
+
+### Fase 2 — Mejoras Funcionales
+- Persistencia con base de datos
+- Historial de conversaciones con IA
+- Clasificación automática de tareas
+- Panel de seguimiento académico
+
+### Fase 3 — Escalabilidad
+- Sistema de autenticación de usuarios
+- Roles (estudiante/docente)
+- Despliegue en la nube
+- Integración con plataformas académicas externas
