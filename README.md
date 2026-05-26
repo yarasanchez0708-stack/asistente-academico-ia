@@ -109,3 +109,48 @@ El proyecto no se intenta terminar de una sola vez. Cada entrega del semestre ag
 ## 👩‍💻 Autora
 
 **Yara Sánchez** — Proyecto Integrador, semestre 2026-1
+
+---
+
+## API Endpoints
+
+La API backend está desarrollada con FastAPI y expone endpoints REST para la gestión de tareas académicas.
+
+### Base URL
+
+http://127.0.0.1:8000
+
+### Endpoints Disponibles
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | /tasks | Obtener todas las tareas |
+| POST | /tasks | Crear una nueva tarea |
+| PATCH | /tasks/{task_id}/completar | Marcar tarea como completada |
+| DELETE | /tasks/{task_id} | Eliminar una tarea |
+| GET | /tasks/stats/resumen | Estadísticas de tareas |
+
+### Documentación Automática
+- Swagger UI: `http://127.0.0.1:8000/docs`
+- ReDoc: `http://127.0.0.1:8000/redoc`
+
+---
+
+## Buenas Prácticas y Convenciones
+
+### Backend
+- Separación de modelos Pydantic en `models.py`
+- Uso de tipado estático con Python 3.11+
+- Variables sensibles manejadas mediante `.env`
+
+### Frontend
+- Estructura simple basada en HTML/CSS/JS vanilla
+- Comunicación mediante API REST
+
+### Convención de Commits
+| Prefijo | Uso |
+|---------|-----|
+| `feat(#N)` | Nueva funcionalidad vinculada a issue |
+| `fix(#N)` | Corrección de bug |
+| `docs` | Documentación |
+| `refactor` | Refactorización de código |
