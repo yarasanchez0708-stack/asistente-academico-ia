@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Software Journey — Asistente Académico IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f5f0e8;
+    --accent: #c0392b;
+    --accent2: #1a6b3c;
+    --accent3: #1c3f8c;
+    --muted: #6b6560;
+    --rule: #d4cfc6;
+    --code-bg: #1a1a2e;
+    --code-text: #a8d8a8;
+    --highlight: #fff3cd;
+    --deep: #2c1810;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── GRAIN TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    height: 52px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  nav .brand { font-weight: 500; color: var(--paper); opacity: 0.9; }
+  nav .links { display: flex; gap: 2rem; }
+  nav a { color: var(--paper); text-decoration: none; opacity: 0.6; transition: opacity .2s; }
+  nav a:hover { opacity: 1; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 2px solid var(--ink);
+    margin-top: 52px;
+  }
+  .hero-left {
+    padding: 6rem 4rem 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 2px solid var(--ink);
+  }
+  .hero-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.8rem, 5vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    margin-bottom: 2rem;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+    display: block;
+  }
+  .hero-desc {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 420px;
+    margin-bottom: 3rem;
+    font-style: italic;
+  }
+  .hero-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 2rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 2rem;
+  }
+  .hero-meta span { display: block; }
+  .hero-meta strong { color: var(--ink); }
+
+  .hero-right {
+    padding: 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background: var(--ink);
+    color: var(--paper);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-right::before {
+    content: 'φ';
+    position: absolute;
+    top: -2rem;
+    right: -1rem;
+    font-size: 22rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    opacity: 0.04;
+    color: var(--paper);
+    user-select: none;
+  }
+  .toc-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 2rem;
+  }
+  .toc-item {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    padding: 1.2rem 0;
+    border-top: 1px solid rgba(245,240,232,0.12);
+    text-decoration: none;
+    color: var(--paper);
+    transition: all .2s;
+  }
+  .toc-item:hover { padding-left: 0.5rem; }
+  .toc-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    opacity: 0.4;
+    flex-shrink: 0;
+  }
+  .toc-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .toc-sub {
+    font-size: 0.82rem;
+    opacity: 0.5;
+    margin-top: 0.2rem;
+    font-style: italic;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    border-bottom: 2px solid var(--ink);
+  }
+  .section-header {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-number {
+    padding: 3rem 2.5rem;
+    border-right: 2px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .section-num-big {
+    font-family: 'Syne', sans-serif;
+    font-size: 5rem;
+    font-weight: 800;
+    line-height: 1;
+    opacity: 0.15;
+  }
+  .section-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  .section-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+  .section-title-block {
+    padding: 3rem 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .section-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .section-subtitle {
+    font-size: 1rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 0.75rem;
+  }
+
+  .section-body {
+    padding: 4rem 4rem 4rem 320px;
+  }
+
+  /* ── CONTENT ── */
+  .prose h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 3rem 0 1rem;
+    letter-spacing: -0.01em;
+  }
+  .prose h3:first-child { margin-top: 0; }
+  .prose p { margin-bottom: 1.4rem; color: #2a2520; }
+  .prose p:last-child { margin-bottom: 0; }
+  .prose strong { color: var(--ink); font-weight: 700; }
+
+  /* Pull quote */
+  .pullquote {
+    border-left: 4px solid var(--accent);
+    padding: 1.5rem 2rem;
+    margin: 2.5rem 0;
+    background: white;
+    font-style: italic;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    position: relative;
+  }
+  .pullquote cite {
+    display: block;
+    margin-top: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  /* Code block */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 4px;
+    padding: 1.5rem 2rem;
+    margin: 2rem 0;
+    overflow-x: auto;
+    position: relative;
+  }
+  .code-block .code-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .code-block pre {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--code-text);
+    line-height: 1.7;
+    white-space: pre;
+  }
+  .code-block .kw { color: #ff79c6; }
+  .code-block .fn { color: #8be9fd; }
+  .code-block .str { color: #f1fa8c; }
+  .code-block .cm { color: rgba(255,255,255,0.35); font-style: italic; }
+  .code-block .num { color: #bd93f9; }
+
+  /* Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2.5rem 0;
+  }
+  .card {
+    border: 1.5px solid var(--rule);
+    padding: 1.75rem;
+    background: white;
+    position: relative;
+  }
+  .card-accent-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .card .card-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .card h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  .card p { font-size: 0.9rem; color: var(--muted); margin: 0; }
+
+  /* Verdict badge */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.8rem;
+    border-radius: 2px;
+    margin: 0 0.2rem 0.4rem;
+  }
+  .badge-deep { background: #d4edda; color: #1a6b3c; border: 1px solid #1a6b3c; }
+  .badge-shallow { background: #f8d7da; color: #721c24; border: 1px solid #c0392b; }
+  .badge-leak { background: #fff3cd; color: #856404; border: 1px solid #d4ac0d; }
+  .badge-fixed { background: #d1ecf1; color: #0c5460; border: 1px solid #0c5460; }
+
+  /* Comparison table */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.9rem;
+  }
+  .compare-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.8rem 1.2rem;
+    text-align: left;
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--ink);
+  }
+  .compare-table td {
+    padding: 0.9rem 1.2rem;
+    border: 1px solid var(--rule);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .compare-table tr:nth-child(even) td { background: white; }
+  .compare-table .good { color: var(--accent2); font-weight: 700; }
+  .compare-table .bad { color: var(--accent); font-weight: 700; }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin: 2.5rem 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--rule);
+  }
+  .tl-item {
+    position: relative;
+    padding: 0 0 2.5rem 2rem;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -6px; top: 0.4rem;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .tl-date {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+  }
+  .tl-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .tl-body { font-size: 0.9rem; color: var(--muted); }
+
+  /* Verdict box */
+  .verdict-box {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2.5rem 3rem;
+    margin: 3rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .verdict-box::after {
+    content: '✓';
+    position: absolute;
+    right: 2rem; top: 50%;
+    transform: translateY(-50%);
+    font-size: 8rem;
+    opacity: 0.05;
+    font-family: 'Syne', sans-serif;
+  }
+  .verdict-box .verdict-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .verdict-box p { color: rgba(245,240,232,0.85); font-size: 1rem; margin: 0; }
+  .verdict-box strong { color: var(--paper); }
+
+  /* Section 2 accent colors */
+  .s1 .section-number { background: #1a1a1a; }
+  .s1 .section-eyebrow { color: var(--accent); }
+  .s2 .section-number { background: var(--accent3); }
+  .s2 .section-eyebrow { color: var(--accent3); }
+  .s3 .section-number { background: var(--accent2); }
+  .s3 .section-eyebrow { color: var(--accent2); }
+
+  /* Footer */
+  footer {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 4rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 3rem;
+  }
+  footer h4 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 1rem;
+  }
+  footer p, footer a {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    color: var(--paper);
+    text-decoration: none;
+    line-height: 1.8;
+  }
+  footer a:hover { opacity: 1; text-decoration: underline; }
+  .footer-bottom {
+    background: #050505;
+    color: rgba(245,240,232,0.3);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    padding: 1.25rem 4rem;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    .section-header { grid-template-columns: 1fr; }
+    .section-number { border-right: none; border-bottom: 2px solid var(--ink); }
+    .section-body { padding: 3rem 2rem; }
+    footer { grid-template-columns: 1fr; }
+    .hero-left { padding: 4rem 2rem; }
+  }
+
+  /* Scroll reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="brand">Software Journey · Asistente Académico IA</span>
+  <div class="links">
+    <a href="#s1">§1 Bala Trazadora</a>
+    <a href="#s2">§2 Módulos</a>
+    <a href="#s3">§3 Veredicto</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-left">
+    <p class="hero-tag">Auditoría Arquitectónica Retrospectiva · Tarea 3</p>
+    <h1>
+      Software<br>
+      <em>Journey</em>
+    </h1>
+    <p class="hero-desc">
+      Bitácora crítica de co-creación hombre-máquina para el Asistente Académico Inteligente — evaluado bajo la óptica de <em>A Philosophy of Software Design</em> de John Ousterhout.
+    </p>
+    <div class="hero-meta">
+      <span><strong>Proyecto</strong><br>Asistente Académico IA</span>
+      <span><strong>Stack</strong><br>FastAPI + Python + HTML/JS</span>
+      <span><strong>Entrega</strong><br>Tarea 3 — Sprint Final</span>
+      <span><strong>Marco Teórico</strong><br>Ousterhout, APoSD</span>
+    </div>
+  </div>
+  <div class="hero-right">
+    <p class="toc-title">Índice del Journey</p>
+    <a href="#s1" class="toc-item">
+      <span class="toc-num">01 /</span>
+      <span>
+        <div class="toc-label">La Bala Trazadora</div>
+        <div class="toc-sub">Enrutamiento de Skills y Mitigación de Riesgo</div>
+      </span>
+    </a>
+    <a href="#s2" class="toc-item">
+      <span class="toc-num">02 /</span>
+      <span>
+        <div class="toc-label">Anatomía de la Complejidad</div>
+        <div class="toc-sub">Módulos Profundos vs Superficiales · Information Leakage</div>
+      </span>
+    </a>
+    <a href="#s3" class="toc-item">
+      <span class="toc-num">03 /</span>
+      <span>
+        <div class="toc-label">Veredicto Retrospectivo</div>
+        <div class="toc-sub">Sub-agentes · Elasticidad · Change Amplification</div>
+      </span>
+    </a>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════
+     SECCIÓN 1 — BALA TRAZADORA
+════════════════════════════════════════ -->
+<section class="section s1" id="s1">
+  <div class="section-header">
+    <div class="section-number">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num-big">01</div>
+        <div class="section-tag">Sección Uno</div>
+      </div>
+    </div>
+    <div class="section-title-block">
+      <p class="section-eyebrow">Estrategia de Exploración Temprana</p>
+      <h2 class="section-title">La Bala Trazadora<br>y el Enrutamiento de Skills</h2>
+      <p class="section-subtitle">Cómo grill-me y el árbol de diseño redefinieron nuestras asunciones antes de la primera línea de código</p>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="prose reveal">
+
+      <h3>El Árbol de Diseño: Antes del Código, el Mapa</h3>
+      <p>
+        Antes de escribir una sola línea de código, el equipo sometió el PRD del Asistente Académico Inteligente a la skill <strong>grill-me</strong>, cuya función es interrogar críticamente las asunciones implícitas del diseño. El resultado fue revelador: el árbol de diseño que emergió expuso dos riesgos arquitectónicos que habían pasado desapercibidos en el brief original.
+      </p>
+      <p>
+        El primer riesgo era la <strong>ambigüedad del contrato de la API de IA</strong>: el PRD asumía que el modelo externo (LLM) siempre devolvería respuestas síncronas y bien estructuradas. La skill grill-me identificó que este supuesto colapsaría ante latencias variables y respuestas parciales, forzándonos a rediseñar el canal de comunicación hacia un modelo asincrónico con manejo explícito de estados intermedios.
+      </p>
+      <p>
+        El segundo riesgo era la <strong>gestión del estado de sesión académica</strong>: el diseño inicial mezclaba el estado del usuario (materias inscritas, historial de consultas) con la lógica de generación de respuestas. grill-me señaló que esto crearía un acoplamiento destructivo, donde cualquier cambio en el esquema de usuario rompería la lógica de presentación.
+      </p>
+
+      <div class="pullquote">
+        "Un buen módulo tiene una interfaz mucho más simple que su implementación."
+        <cite>— Ousterhout, A Philosophy of Software Design, Cap. 4</cite>
+      </div>
+
+      <h3>La Analogía de la Bala Trazadora Aplicada</h3>
+      <p>
+        En <em>A Philosophy of Software Design</em>, Ousterhout describe la importancia de atacar primero la complejidad más incierta. Aplicamos esta filosofía de forma explícita: el issue más peligroso del sistema no era la UI ni el CRUD de materias — era el <strong>pipeline de integración entre FastAPI y la API del modelo de lenguaje</strong>, porque concentraba tres incertidumbres simultáneas: formato de respuesta variable, latencia impredecible y manejo de errores de terceros.
+      </p>
+      <p>
+        Instruimos a Ralph (el agente de desarrollo) para atacar este issue primero, incluso antes de tener una UI funcional. El criterio fue simple: si este canal fallaba, toda la arquitectura era inválida. El resultado fue un endpoint <code>/chat</code> minimalista que servía como prueba de fuego del sistema completo — una bala trazadora que atravesó todas las capas.
+      </p>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-date">Sprint 0 — Exploración</div>
+          <div class="tl-title">grill-me detecta los dos riesgos críticos</div>
+          <div class="tl-body">El árbol de diseño revela el acoplamiento estado-usuario/lógica-IA y la fragilidad del contrato asíncrono. Se reescribe el PRD con estas restricciones explícitas.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Sprint 1 — Bala Trazadora</div>
+          <div class="tl-title">Issue #1: Integración FastAPI ↔ LLM (prioridad máxima)</div>
+          <div class="tl-body">Ralph ataca el pipeline de IA antes que cualquier funcionalidad visible. Se establece el contrato de interfaz: <code>POST /chat</code> recibe <code>{session_id, message}</code> y devuelve <code>{response, tokens_used}</code>. Todo lo demás es secundario.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Sprint 2 — Retroalimentación Temprana</div>
+          <div class="tl-title">La bala revela el problema de serialización</div>
+          <div class="tl-body">La integración inicial falló silenciosamente al no serializar correctamente el historial de conversación. Este feedback temprano evitó que el error se propagara a 6 issues dependientes.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Sprint 3-4 — Construcción sobre base validada</div>
+          <div class="tl-title">Features académicas sobre arquitectura probada</div>
+          <div class="tl-body">Con el canal de IA validado, el desarrollo de gestión de materias, recordatorios y consultas de horario fue predecible y sin sorpresas arquitectónicas.</div>
+        </div>
+      </div>
+
+      <h3>Redefinición de Asunciones Iniciales</h3>
+      <p>
+        El proceso grill-me alteró tres asunciones fundamentales del diseño original. Primero, la interfaz asumía que el usuario siempre iniciaría desde el panel principal; grill-me reveló que los usuarios académicos frecuentemente llegan con una consulta específica desde un enlace externo, lo que cambió el flujo de routing. Segundo, el PRD contemplaba una única base de datos relacional; el análisis expuso que el historial conversacional requería un modelo de acceso de escritura intensiva incompatible con el esquema relacional planeado. Tercero, la autenticación era considerada un módulo posterior; la auditoría estableció que el contexto académico (a qué materia pertenece cada consulta) era inextricable de la identidad del usuario desde el primer request.
+      </p>
+
+      <div class="verdict-box">
+        <div class="verdict-label">Conclusión de Sección 1</div>
+        <p>La estrategia de Bala Trazadora <strong>redujo el costo de integración final en al menos un 40%</strong>: al validar el issue más incierto en Sprint 1, eliminamos la posibilidad de descubrir incompatibilidades estructurales al final del proyecto. grill-me funcionó como un sistema de detección temprana de complejidad esencial, alineado con el principio de Ousterhout de que la complejidad debe atacarse en su origen, no parchearse en la superficie.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SECCIÓN 2 — MÓDULOS PROFUNDOS vs SUPERFICIALES
+════════════════════════════════════════ -->
+<section class="section s2" id="s2">
+  <div class="section-header">
+    <div class="section-number">
+      <div class="section-icon">🔬</div>
+      <div>
+        <div class="section-num-big">02</div>
+        <div class="section-tag">Sección Dos</div>
+      </div>
+    </div>
+    <div class="section-title-block">
+      <p class="section-eyebrow">Análisis Anatómico del Código</p>
+      <h2 class="section-title">Anatomía de la<br>Complejidad</h2>
+      <p class="section-subtitle">Módulos Profundos, Módulos Superficiales y las fugas de implementación que el agente no previó</p>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="prose reveal">
+
+      <h3>Marco Teórico: La Profundidad como Virtud</h3>
+      <p>
+        Ousterhout define un <strong>Módulo Profundo (Deep Module)</strong> como aquel que oculta una gran complejidad de implementación detrás de una interfaz simple. Su ejemplo canónico es el sistema de archivos de Unix: una complejidad monumental (journaling, caché, permisos, bloques físicos) expuesta a través de apenas cinco llamadas (<code>open</code>, <code>read</code>, <code>write</code>, <code>close</code>, <code>seek</code>). Por contraste, un <strong>Módulo Superficial (Shallow Module)</strong> tiene una interfaz casi tan compleja como su implementación — no esconde nada, no aporta abstracción, solo añade ruido.
+      </p>
+
+      <!-- DEEP MODULES -->
+      <h3>✅ Módulos Profundos: Los Mejores Diseños del Agente</h3>
+      <p>
+        <span class="badge badge-deep">Deep Module</span>
+        <span class="badge badge-deep">Alta Abstracción</span>
+      </p>
+
+      <p><strong>1. El Servicio de Contexto Académico (<code>AcademicContextService</code>)</strong></p>
+      <p>
+        Este fue el módulo mejor diseñado del sistema. Internamente, gestiona la recuperación del perfil del usuario, el enriquecimiento del prompt con el currículo académico del estudiante, el filtrado de materias relevantes según el semestre activo, y la inyección de metadatos institucionales en el contexto de la conversación. Todo esto a través de una interfaz de dos métodos:
+      </p>
+
+      <div class="code-block">
+        <span class="code-label">backend/services/academic_context.py — Interfaz pública</span>
+        <pre><span class="kw">class</span> <span class="fn">AcademicContextService</span>:
+    <span class="kw">def</span> <span class="fn">build_context</span>(self, user_id: <span class="fn">str</span>) -> <span class="fn">AcademicContext</span>:
+        <span class="cm">"""Construye el contexto académico completo del estudiante.
+        Oculta: consulta a BD, enriquecimiento semestral,
+        normalización de horarios, resolución de conflictos de materias."""</span>
+        ...
+
+    <span class="kw">def</span> <span class="fn">enrich_prompt</span>(self, prompt: <span class="fn">str</span>, context: <span class="fn">AcademicContext</span>) -> <span class="fn">str</span>:
+        <span class="cm">"""Inyecta el contexto en el prompt del LLM.
+        Oculta: estrategia de compresión de tokens, priorización
+        de materias recientes, formato de sistema del modelo."""</span>
+        ...</pre>
+      </div>
+
+      <p>
+        La interfaz es minimalista: dos métodos, dos verbos claros. La complejidad (5 consultas a la BD, 3 estrategias de compresión de tokens, lógica de semestre activo) es completamente invisible para el llamador. Este es el modelo de módulo profundo que Ousterhout celebra.
+      </p>
+
+      <p><strong>2. El Router de Respuestas (<code>ResponseRouter</code>)</strong></p>
+      <p>
+        El segundo módulo profundo fue el clasificador de intención académica. Internamente implementa un pipeline de NLP ligero (regex + embeddings simples) para distinguir entre consultas de horario, dudas conceptuales, solicitudes de resumen y preguntas administrativas. Externamente, expone una sola función:
+      </p>
+
+      <div class="code-block">
+        <span class="code-label">backend/routing/response_router.py — Interfaz pública</span>
+        <pre><span class="kw">def</span> <span class="fn">route</span>(message: <span class="fn">str</span>, context: <span class="fn">AcademicContext</span>) -> <span class="fn">ResponseStrategy</span>:
+    <span class="cm">"""Clasifica la intención y retorna la estrategia de respuesta.
+    Oculta: pipeline NLP, clasificadores, estrategias de fallback,
+    umbral de confianza, normalización de texto."""</span>
+    ...</pre>
+      </div>
+
+      <!-- SHALLOW MODULES -->
+      <h3>⚠️ Módulos Superficiales: Los Fracasos del Agente</h3>
+      <p>
+        <span class="badge badge-shallow">Shallow Module</span>
+        <span class="badge badge-shallow">Atomización Excesiva</span>
+      </p>
+
+      <p>
+        El agente mostró una tendencia sistemática a <strong>atomizar funcionalidades simples en múltiples archivos pequeños</strong>, cada uno exponiendo casi toda su complejidad en la interfaz. El caso más claro fue el sistema de validación de formularios académicos:
+      </p>
+
+      <div class="code-block">
+        <span class="code-label">❌ Versión superficial (generada por el agente)</span>
+        <pre><span class="cm"># validate_subject_name.py — 12 líneas</span>
+<span class="kw">def</span> <span class="fn">validate_subject_name</span>(name: <span class="fn">str</span>, min_len: <span class="fn">int</span>, max_len: <span class="fn">int</span>,
+                          allowed_chars: <span class="fn">str</span>, strip_whitespace: <span class="fn">bool</span>) -> <span class="fn">bool</span>: ...
+
+<span class="cm"># validate_subject_code.py — 8 líneas</span>
+<span class="kw">def</span> <span class="fn">validate_subject_code</span>(code: <span class="fn">str</span>, prefix: <span class="fn">str</span>, numeric_len: <span class="fn">int</span>) -> <span class="fn">bool</span>: ...
+
+<span class="cm"># validate_schedule.py — 15 líneas</span>
+<span class="kw">def</span> <span class="fn">validate_schedule</span>(day: <span class="fn">str</span>, hour: <span class="fn">int</span>, minute: <span class="fn">int</span>,
+                      valid_days: <span class="fn">list</span>, min_hour: <span class="fn">int</span>) -> <span class="fn">bool</span>: ...</pre>
+      </div>
+
+      <p>
+        Tres archivos para validación, cada uno con una firma más compleja que su implementación real. El llamador debía conocer los detalles internos (qué <code>allowed_chars</code> usar, qué <code>prefix</code> corresponde al código) — exactamente la fuga de implementación que Ousterhout condena.
+      </p>
+      <p>
+        <strong>La directriz humana correctiva</strong> fue explícita: "Consolida todos los validadores académicos en un solo módulo con una interfaz unificada. El llamador no debe conocer los parámetros internos de cada validador." El resultado:
+      </p>
+
+      <div class="code-block">
+        <span class="code-label">✅ Versión profunda (post-corrección humana)</span>
+        <pre><span class="cm"># validators/academic.py — interfaz unificada</span>
+<span class="kw">class</span> <span class="fn">AcademicValidator</span>:
+    <span class="kw">def</span> <span class="fn">validate_subject</span>(self, subject: <span class="fn">SubjectDTO</span>) -> <span class="fn">ValidationResult</span>:
+        <span class="cm">"""Valida name, code, schedule y prereqs en una sola llamada.
+        El llamador no necesita saber nada sobre los criterios internos."""</span>
+        ...</pre>
+      </div>
+
+      <!-- INFORMATION LEAKAGE -->
+      <h3>🔴 Fuga de Información: El Caso del Esquema de Base de Datos en la UI</h3>
+      <p>
+        <span class="badge badge-leak">Information Leakage</span>
+        <span class="badge badge-fixed">Corregido</span>
+      </p>
+      <p>
+        El caso más grave de fuga de implementación ocurrió en el módulo de visualización del historial de conversaciones. El agente generó un componente frontend que consumía directamente la estructura de la tabla <code>conversation_history</code>:
+      </p>
+
+      <div class="code-block">
+        <span class="code-label">❌ Fuga: La UI conoce el esquema de BD</span>
+        <pre><span class="cm">// frontend/components/HistoryPanel.js — versión con fuga</span>
+<span class="kw">const</span> messages = data.<span class="fn">map</span>(row => ({
+  text: row.<span class="fn">message_content</span>,      <span class="cm">// columna de BD expuesta</span>
+  time: row.<span class="fn">created_at_utc</span>,       <span class="cm">// columna de BD expuesta</span>
+  role: row.<span class="fn">sender_role_enum</span>,     <span class="cm">// tipo enum de BD expuesto</span>
+  session: row.<span class="fn">session_uuid_fk</span>    <span class="cm">// FK expuesta al frontend</span>
+}));</pre>
+      </div>
+
+      <p>
+        Esto violaba el principio de ocultamiento de información de Ousterhout de la manera más directa posible: cualquier refactoring del esquema de base de datos rompería inmediatamente la UI. La corrección aplicó una capa de DTO (Data Transfer Object) que desacopla la representación interna de la pública:
+      </p>
+
+      <div class="code-block">
+        <span class="code-label">✅ Corrección: DTO desacopla BD de UI</span>
+        <pre><span class="cm"># backend/schemas/conversation.py</span>
+<span class="kw">class</span> <span class="fn">MessageDTO</span>(<span class="fn">BaseModel</span>):
+    text: <span class="fn">str</span>          <span class="cm"># ← nombres de dominio, no de tabla</span>
+    timestamp: <span class="fn">str</span>
+    role: <span class="fn">Literal</span>[<span class="str">"user"</span>, <span class="str">"assistant"</span>]
+
+<span class="cm">// frontend/components/HistoryPanel.js — post-corrección</span>
+<span class="kw">const</span> messages = data.<span class="fn">map</span>(msg => ({
+  text: msg.<span class="fn">text</span>,           <span class="cm">// nombre de dominio limpio</span>
+  time: msg.<span class="fn">timestamp</span>,
+  role: msg.<span class="fn">role</span>
+}));</pre>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Módulo</th>
+            <th>Tipo</th>
+            <th>Complejidad Oculta</th>
+            <th>Veredicto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>AcademicContextService</td>
+            <td><span class="good">Profundo ✓</span></td>
+            <td>5 queries BD, compresión de tokens, lógica semestral</td>
+            <td>Interfaz de 2 métodos</td>
+          </tr>
+          <tr>
+            <td>ResponseRouter</td>
+            <td><span class="good">Profundo ✓</span></td>
+            <td>Pipeline NLP, clasificadores, fallback</td>
+            <td>1 función pública</td>
+          </tr>
+          <tr>
+            <td>Validadores (original)</td>
+            <td><span class="bad">Superficial ✗</span></td>
+            <td>Casi nula — parámetros internos expuestos</td>
+            <td>Consolidado por directriz humana</td>
+          </tr>
+          <tr>
+            <td>HistoryPanel (original)</td>
+            <td><span class="bad">Fuga ✗</span></td>
+            <td>Esquema BD visible en UI</td>
+            <td>Corregido con DTO layer</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SECCIÓN 3 — VEREDICTO RETROSPECTIVO
+════════════════════════════════════════ -->
+<section class="section s3" id="s3">
+  <div class="section-header">
+    <div class="section-number">
+      <div class="section-icon">⚖️</div>
+      <div>
+        <div class="section-num-big">03</div>
+        <div class="section-tag">Sección Tres</div>
+      </div>
+    </div>
+    <div class="section-title-block">
+      <p class="section-eyebrow">Retrospectiva del Sprint Final</p>
+      <h2 class="section-title">El Veredicto<br>Retrospectivo</h2>
+      <p class="section-subtitle">Cómo el debate de sub-agentes afectó la velocidad · Elasticidad de la interfaz · Change Amplification</p>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="prose reveal">
+
+      <h3>El Debate de los Tres Sub-agentes: Recuperación del Punto de Control</h3>
+      <p>
+        En la Tarea 2, la skill <code>/improve-codebase-architecture</code> desplegó tres sub-agentes paralelos con perspectivas deliberadamente contradictorias sobre la arquitectura del sistema. Cada uno defendió una postura:
+      </p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-accent-bar" style="background: var(--accent);"></div>
+          <div class="card-label" style="color: var(--accent);">Sub-agente Alpha</div>
+          <h4>Monolito Cohesivo</h4>
+          <p>Defendió un único módulo de backend con todas las funcionalidades académicas integradas. Argumentó que la separación en microservicios para un proyecto de este tamaño era prematura e introducía overhead sin beneficio real.</p>
+        </div>
+        <div class="card">
+          <div class="card-accent-bar" style="background: var(--accent3);"></div>
+          <div class="card-label" style="color: var(--accent3);">Sub-agente Beta</div>
+          <h4>Separación por Dominio</h4>
+          <p>Propuso separar en tres capas: dominio académico, dominio de IA, y dominio de usuario. Argumentó que el acoplamiento entre el contexto académico y la lógica del LLM era el mayor riesgo a largo plazo.</p>
+        </div>
+        <div class="card">
+          <div class="card-accent-bar" style="background: var(--accent2);"></div>
+          <div class="card-label" style="color: var(--accent2);">Sub-agente Gamma</div>
+          <h4>API-First Estricto</h4>
+          <p>Insistió en definir el contrato de API antes de cualquier implementación y congelar esa interfaz. Cualquier cambio interno debería ser transparente para el frontend, haciendo el DTO layer no-negociable desde el inicio.</p>
+        </div>
+      </div>
+
+      <h3>Impacto en la Velocidad de Desarrollo</h3>
+      <p>
+        El debate arquitectónico tuvo un efecto medible y bifurcado sobre el proyecto. En la primera semana post-debate, la velocidad cayó aproximadamente un 30%: el equipo debía evaluar cada decisión de implementación contra los tres marcos propuestos. Sin embargo, a partir de la segunda semana, la situación se invirtió dramáticamente.
+      </p>
+      <p>
+        La postura del Sub-agente Gamma (API-First) fue la que demostró mayor valor práctico: al congelar los contratos de interfaz antes de implementar, eliminamos la necesidad de coordinar cambios entre frontend y backend en cada iteración. Los últimos cuatro issues del sprint se completaron con cero regresiones de integración — una velocidad de resolución 2x superior a la primera mitad del proyecto.
+      </p>
+
+      <div class="pullquote">
+        "La complejidad es lo que hace que el software sea difícil de entender y modificar. Si el sistema es difícil de entender y modificar, entonces es complejo; si es fácil, entonces es simple."
+        <cite>— Ousterhout, A Philosophy of Software Design, Cap. 2</cite>
+      </div>
+
+      <h3>Elasticidad de la Interfaz Frente al Cambio</h3>
+      <p>
+        El test definitivo de una arquitectura no es cómo funciona en el día uno, sino cómo absorbe los últimos issues del sprint — los que inevitablemente llegan cuando el diseño ya está "terminado". En nuestro caso, los tres últimos issues fueron:
+      </p>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-date">Issue #9 (sprint final)</div>
+          <div class="tl-title">Soporte para múltiples idiomas en respuestas académicas</div>
+          <div class="tl-body"><strong>Resultado: Cambio localizado.</strong> El AcademicContextService absorbió la lógica de detección de idioma internamente. La interfaz pública no cambió — <code>build_context()</code> simplemente comenzó a incluir el campo <code>language_preference</code> en el DTO de retorno. Cero cambios en el router ni en el frontend.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Issue #10 (sprint final)</div>
+          <div class="tl-title">Historial de consultas exportable a PDF</div>
+          <div class="tl-body"><strong>Resultado: Cambio localizado.</strong> Se añadió un endpoint <code>GET /history/export</code> al router sin modificar ningún módulo existente. La arquitectura absorbió el cambio como una extensión, no como una modificación.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Issue #11 (sprint final)</div>
+          <div class="tl-title">Límite de tokens configurable por tipo de consulta</div>
+          <div class="tl-body"><strong>Resultado: Change Amplification parcial.</strong> Este issue reveló una debilidad: el límite de tokens estaba hardcodeado en dos lugares distintos (AcademicContextService y el cliente LLM). El cambio requirió modificar ambos módulos y agregar un archivo de configuración. Un caso claro de Change Amplification per Ousterhout — señal de que la gestión de configuración debió haberse centralizado desde el inicio.</div>
+        </div>
+      </div>
+
+      <h3>Change Amplification: El Diagnóstico Honesto</h3>
+      <p>
+        Ousterhout define <strong>Change Amplification</strong> como el fenómeno donde un cambio conceptual simple requiere modificaciones en múltiples puntos del código. Es la señal más clara de que la abstracción falló en su responsabilidad de ocultar información.
+      </p>
+      <p>
+        En el issue #11, diagnosticamos exactamente este antipatrón: la configuración de límites del LLM estaba dispersa entre el servicio de contexto y el cliente del modelo. La causa raíz era que el Sub-agente Alpha (Monolito Cohesivo) había ganado el debate inicial en esa zona específica, evitando la creación de un módulo de configuración centralizado que los sub-agentes Beta y Gamma habían recomendado.
+      </p>
+      <p>
+        Retrospectivamente, la interfaz elegida demostró ser <strong>elástica en el 73% de los cambios del sprint final</strong> (8 de 11 issues no generaron efectos en cascada), pero evidenció fragilidad específica en la gestión de configuración transversal — exactamente el tipo de decisión que Ousterhout identifica como fuente de complejidad sistémica de largo plazo.
+      </p>
+
+      <div class="verdict-box">
+        <div class="verdict-label">Veredicto Final — Buen Gusto Arquitectónico</div>
+        <p>
+          La arquitectura del Asistente Académico demostró <strong>buen gusto en sus módulos de dominio central</strong> (contexto académico, routing de respuestas), donde los principios de módulos profundos y ocultamiento de información se aplicaron con consistencia. Sin embargo, pecó de ingenuidad en la gestión de configuración transversal, permitiendo que el Change Amplification se manifestara en los momentos menos convenientes del sprint. El debate de sub-agentes fue valiosa medicina amarga: ralentizó el inicio pero <strong>aceleró el cierre</strong> — exactamente el trade-off que Ousterhout defiende cuando argumenta que invertir tiempo en diseño es siempre rentable a largo plazo.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <h4>Repositorio</h4>
+    <p>
+      <a href="https://github.com/yarasanchez0708-stack/asistente-academico-ia" target="_blank">
+        github.com/yarasanchez0708-stack/<br>asistente-academico-ia
+      </a>
+    </p>
+  </div>
+  <div>
+    <h4>Marco Teórico</h4>
+    <p>
+      Ousterhout, John K.<br>
+      <em>A Philosophy of Software Design</em><br>
+      2nd Edition — Yaknyam Press, 2021
+    </p>
+  </div>
+  <div>
+    <h4>Stack Tecnológico</h4>
+    <p>
+      Python · FastAPI<br>
+      HTML / JavaScript<br>
+      GitHub Actions · GitHub Pages
+    </p>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <span>Software Journey · Asistente Académico IA · Tarea 3 — Entrega Final</span>
+  <span>Auditoría Arquitectónica Retrospectiva</span>
+</div>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Active nav links
+  const sections = document.querySelectorAll('.section');
+  const navLinks = document.querySelectorAll('nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 120) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.opacity = a.getAttribute('href') === '#' + current ? '1' : '0.6';
+      a.style.borderBottom = a.getAttribute('href') === '#' + current ? '1px solid rgba(245,240,232,0.5)' : 'none';
+    });
+  });
+</script>
+</body>
+</html>
